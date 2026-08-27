@@ -43,4 +43,4 @@
 - [x] Define and document separate user and administrator account-entry boundaries that preserve secure shared authentication and enforce administrator authorization after login.
 - [x] Build distinct user create-account/login and administrator create-account/login pages while keeping administrator access role-gated.
 - [x] Verify the new account flows at desktop and mobile sizes, validate role-safe routes, run tests/build, and review the latest browser-console output.
-- [ ] Save the role-separated account-flow checkpoint and synchronize the completed source to the private GitHub repository.
+- [x] Save the role-separated account-flow checkpoint and synchronize the completed source to the private GitHub repository.
