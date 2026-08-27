@@ -38,4 +38,4 @@
 - [x] Add searchable product discovery and accessible product-detail routes for published listings and marketplace previews.
 - [x] Add client-side saved-item and local-cart behavior with a clear pre-checkout state and no payment collection.
 - [x] Validate buyer flows at desktop and mobile widths, run unit tests and the production build, and review the latest browser-console output.
-- [ ] Save the buyer-experience checkpoint and synchronize the completed source to the private GitHub repository.
+- [x] Save the buyer-experience checkpoint and synchronize the completed source to the private GitHub repository.
