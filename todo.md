@@ -5,11 +5,15 @@
 - [x] Upload the existing Anilyfe hero, product, Figma, and 3D model assets to project storage and record their stable URLs.
 - [x] Add Three.js and GLTFLoader to the React/Vite application with an accessible, frame-rate-independent 3D product viewer.
 - [x] Build the permanent Anilyfe homepage with the requested lavender, blush-pink, pale-mint, and slate-purple editorial visual system.
-- [ ] Create a standard Figma Design file that mirrors the permanent homepage and use it as the source for secure exports.
+- [x] Create a standard Figma Design file that mirrors the permanent homepage and use it as the source for secure exports. Retired at the user’s request; the standalone website is now the visual source of truth.
 - [x] Implement responsive navigation, category discovery, nested fandom collections, product cards, and gentle motion with reduced-motion support.
 - [x] Preserve the Figma API export, webhook receiver, GitHub Actions, and secure-token integration baseline without exposing secrets to the browser.
 - [x] Add a local Figma source-builder plugin that can create the editable Anilyfe design board inside the standard Figma file.
+- [x] Package the Figma source-builder with clear local installation instructions for the user’s computer.
+- [x] Verify the visible Figma source-builder panel and its completion feedback inside the user’s Figma file. Retired at the user’s request before activation.
 - [x] Add unit tests for the category/model mapping and Figma synchronization configuration validation.
 - [x] Verify desktop and mobile rendering, GLB model loading, accessibility-sensitive motion, and production build output.
 - [x] Push the verified permanent project baseline to the private GitHub repository.
 - [ ] Save a production checkpoint and provide the permanent-preview and publication instructions.
+- [x] Remove Figma-specific UI, server routes, tests, documentation, and automation while retaining the durable artwork and GLB asset pipeline.
+- [x] Update the permanent website and production documentation to make the standalone 3D storefront workflow explicit.

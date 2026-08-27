@@ -11,9 +11,9 @@ describe("Anilyfe production asset manifest", () => {
     });
   });
 
-  it("keeps runtime images and Figma exports on project storage", () => {
+  it("keeps runtime images on durable project storage", () => {
     expect(anilyfeAssets.hero).toMatch(/^\/manus-storage\//);
     expect(Object.values(anilyfeAssets.products)).toHaveLength(5);
-    expect(Object.values(anilyfeAssets.figma).every((url) => url.startsWith("/manus-storage/"))).toBe(true);
+    expect(Object.values(anilyfeAssets.products).every((url) => url.startsWith("/manus-storage/"))).toBe(true);
   });
 });

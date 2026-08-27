@@ -55,10 +55,10 @@ export default function Home() {
     <div className="background-lines" aria-hidden="true" />
     <header className="site-header page-shell">
       <a href="#top" className="brand" aria-label="Anilyfe home"><span>AN</span><KunaiMark /><span>LYFE</span></a>
-      <nav className="desktop-nav" aria-label="Primary navigation"><a href="#collections">Collections</a><a href="#featured">Curated finds</a><a href="#figma">Figma source</a></nav>
+      <nav className="desktop-nav" aria-label="Primary navigation"><a href="#collections">Collections</a><a href="#featured">Curated finds</a><a href="#about">Our story</a></nav>
       <div className="header-actions"><button className="icon-button" aria-label="Search"><Search size={17} /></button><button className="icon-button" aria-label="Wishlist"><Heart size={17} /></button><button className="icon-button" aria-label="Cart"><ShoppingBag size={17} /></button><button className="icon-button mobile-menu" aria-label={mobileMenuOpen ? "Close menu" : "Open menu"} aria-expanded={mobileMenuOpen} onClick={() => setMobileMenuOpen((open) => !open)}>{mobileMenuOpen ? <X size={19} /> : <Menu size={19} />}</button></div>
     </header>
-    {mobileMenuOpen && <nav className="mobile-drawer" aria-label="Mobile navigation"><a href="#collections" onClick={() => setMobileMenuOpen(false)}>Collections <ChevronRight size={16} /></a><a href="#featured" onClick={() => setMobileMenuOpen(false)}>Curated finds <ChevronRight size={16} /></a><a href="#figma" onClick={() => setMobileMenuOpen(false)}>Figma source <ChevronRight size={16} /></a></nav>}
+    {mobileMenuOpen && <nav className="mobile-drawer" aria-label="Mobile navigation"><a href="#collections" onClick={() => setMobileMenuOpen(false)}>Collections <ChevronRight size={16} /></a><a href="#featured" onClick={() => setMobileMenuOpen(false)}>Curated finds <ChevronRight size={16} /></a><a href="#about" onClick={() => setMobileMenuOpen(false)}>Our story <ChevronRight size={16} /></a></nav>}
 
     <main id="top" className="page-shell">
       <section className="hero-section">
@@ -66,8 +66,8 @@ export default function Home() {
           <p className="eyebrow"><span /> Anilyfe permanent edition</p>
           <h1>Collect worlds<br /><em>with feeling.</em></h1>
           <p className="hero-intro">A calmer marketplace for the things that make anime fandom feel like home. Explore thoughtful physical, digital, and collectible pieces.</p>
-          <div className="hero-cta-row"><a className="primary-cta" href="#collections">Explore the collections <ArrowUpRight size={16} /></a><a className="text-cta" href="#figma">See the design source <ChevronRight size={16} /></a></div>
-          <div className="hero-notes"><span>Curated with intention</span><span>Interactive 3D previews</span><span>Figma-to-web foundation</span></div>
+          <div className="hero-cta-row"><a className="primary-cta" href="#collections">Explore the collections <ArrowUpRight size={16} /></a><a className="text-cta" href="#about">Our collector promise <ChevronRight size={16} /></a></div>
+          <div className="hero-notes"><span>Curated with intention</span><span>Interactive 3D previews</span><span>Made for collectors</span></div>
         </div>
         <div className="hero-model-card">
           <div className="corner-bracket top-left" /><div className="corner-bracket top-right" /><div className="corner-bracket bottom-left" /><div className="corner-bracket bottom-right" />
@@ -92,9 +92,9 @@ export default function Home() {
 
       <section id="featured" className="featured-section"><div className="section-header compact"><div><p className="eyebrow"><span /> Gentle discoveries</p><h2>Curated finds for every kind of fan.</h2></div><a href="#collections" className="text-cta">View all collections <ChevronRight size={16} /></a></div><div className="product-grid">{featured.map((product, index) => <article className={`product-card ${product.tone}`} key={product.name}><div className="product-index">0{index + 1}</div><div className="product-image"><img src={product.image} alt={product.name} /></div><div className="product-content"><p>{product.category}</p><h3>{product.name}</h3><button type="button" aria-label={`Explore ${product.name}`}><ArrowUpRight size={17} /></button></div></article>)}</div></section>
 
-      <section id="figma" className="figma-bridge"><div className="figma-bridge-number">03</div><div><p className="eyebrow"><span /> Design continuity</p><h2>Figma maps the feeling.<br />The web makes it move.</h2></div><p>Design exports, generated artwork, and 3D model assets are held outside the application bundle. The permanent site references durable storage URLs while the secure Figma sync bridge stays on the server.</p><div className="figma-actions"><a href={anilyfeAssets.figma.designSystem} target="_blank" rel="noreferrer">View design system <ArrowUpRight size={15} /></a><a href={anilyfeAssets.figma.desktopFrame} target="_blank" rel="noreferrer">Open desktop frame <ArrowUpRight size={15} /></a></div></section>
+      <section id="about" className="figma-bridge"><div className="figma-bridge-number">03</div><div><p className="eyebrow"><span /> Collector promise</p><h2>Objects with stories.<br />A home for your fandom.</h2></div><p>Anilyfe keeps product artwork and interactive 3D previews on reliable media storage, so browsing remains light, responsive, and ready for the worlds you return to most.</p><div className="figma-actions"><a href="#collections">Explore all collections <ArrowUpRight size={15} /></a><a href="#top">Return to the beginning <ArrowUpRight size={15} /></a></div></section>
     </main>
 
-    <footer className="site-footer page-shell"><a href="#top" className="brand footer-brand"><span>AN</span><KunaiMark /><span>LYFE</span></a><p>For the fans who make a world feel lived in.</p><div><a href="#collections">Collections</a><a href="#figma">Design source</a><a href="#top">Back to top</a></div><span>© 2026 Anilyfe</span></footer>
+    <footer className="site-footer page-shell"><a href="#top" className="brand footer-brand"><span>AN</span><KunaiMark /><span>LYFE</span></a><p>For the fans who make a world feel lived in.</p><div><a href="#collections">Collections</a><a href="#about">Our story</a><a href="#top">Back to top</a></div><span>© 2026 Anilyfe</span></footer>
   </div>;
 }

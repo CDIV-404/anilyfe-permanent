@@ -17,11 +17,6 @@ export const anilyfeAssets = {
     home: "/manus-storage/anilyfe-home-living_d2e2a614.glb",
     cosplay: "/manus-storage/anilyfe-cosplay_8f8e610f.glb",
   },
-  figma: {
-    designSystem: "/manus-storage/anilyfe-design-system_7116482e.svg",
-    desktopFrame: "/manus-storage/anilyfe-homepage-desktop_fc26f32e.svg",
-    mobileFrame: "/manus-storage/anilyfe-homepage-mobile_ce38b50a.svg",
-  },
 } as const;
 
 export type AnilyfeModelKey = keyof typeof anilyfeAssets.models;
