@@ -4,6 +4,8 @@ import NotFound from "@/pages/NotFound";
 import Account from "@/pages/Account";
 import AdminDashboard from "@/pages/AdminDashboard";
 import SellerDashboard from "@/pages/SellerDashboard";
+import MarketplaceCatalog from "@/pages/MarketplaceCatalog";
+import ProductDetail from "@/pages/ProductDetail";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -17,6 +19,8 @@ function Router() {
       <Route path={"/account"} component={Account} />
       <Route path={"/seller"} component={SellerDashboard} />
       <Route path={"/admin"} component={AdminDashboard} />
+      <Route path={"/marketplace"} component={MarketplaceCatalog} />
+      <Route path={"/product/:productId"} component={ProductDetail} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

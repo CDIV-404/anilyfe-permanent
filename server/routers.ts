@@ -35,7 +35,8 @@ export const appRouter = router({
     }),
   }),
   marketplace: router({
-    products: publicProcedure.input(z.object({ category: categorySchema.optional() })).query(({ input }) => marketplaceDb.listPublishedProducts(input.category)),
+    products: publicProcedure.input(z.object({ category: categorySchema.optional(), search: z.string().trim().min(1).max(120).optional() }).optional()).query(({ input }) => marketplaceDb.listPublishedProducts(input)),
+    product: publicProcedure.input(z.object({ productId: z.number().int().positive() })).query(({ input }) => marketplaceDb.getPublishedProduct(input.productId)),
     announcements: publicProcedure.query(() => marketplaceDb.listPublishedAnnouncements()),
   }),
   seller: router({

@@ -34,3 +34,8 @@
 - [x] Rebuild the public homepage to match the supplied marketplace dashboard composition while retaining responsive design and the existing Three.js product-preview capability.
 - [x] Test data validation, role authorization, storage upload behavior, desktop/mobile layouts, and the production build.
 - [x] Save the reference-matched marketplace checkpoint and synchronize the completed source to the private GitHub repository.
+- [x] Define the buyer product-discovery, product-detail, saved-item, and local-cart experience without introducing checkout or payment processing.
+- [x] Add searchable product discovery and accessible product-detail routes for published listings and marketplace previews.
+- [x] Add client-side saved-item and local-cart behavior with a clear pre-checkout state and no payment collection.
+- [x] Validate buyer flows at desktop and mobile widths, run unit tests and the production build, and review the latest browser-console output.
+- [ ] Save the buyer-experience checkpoint and synchronize the completed source to the private GitHub repository.

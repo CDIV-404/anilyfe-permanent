@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, like, or } from "drizzle-orm";
 import { announcements, buyerContacts, marketplaceProducts, productImages, sellerProfiles, users } from "../drizzle/schema";
 import { getDb } from "./db";
 
@@ -81,11 +81,38 @@ export async function addProductImageForSeller(userId: number, productId: number
   return image;
 }
 
-export async function listPublishedProducts(category?: MarketplaceCategory) {
+type PublishedProductRow = { product: typeof marketplaceProducts.$inferSelect; seller: typeof sellerProfiles.$inferSelect; image: typeof productImages.$inferSelect | null };
+
+function serializePublishedProducts(rows: PublishedProductRow[]) {
+  const grouped = new Map<number, { product: typeof marketplaceProducts.$inferSelect; sellerName: string; sellerSlug: string; productImages: Array<typeof productImages.$inferSelect> }>();
+  for (const { product, seller, image } of rows) {
+    const existing = grouped.get(product.id) ?? { product, sellerName: seller.shopName, sellerSlug: seller.shopSlug, productImages: [] };
+    if (image) existing.productImages.push(image);
+    grouped.set(product.id, existing);
+  }
+  return Array.from(grouped.values()).map(({ product, sellerName, sellerSlug, productImages: images }) => {
+    const productImages = [...images].sort((first, second) => first.sortOrder - second.sortOrder);
+    return { ...product, sellerName, sellerSlug, imageUrl: productImages[0]?.imageUrl ?? null, productImages };
+  });
+}
+
+export async function listPublishedProducts(input: { category?: MarketplaceCategory; search?: string } = {}) {
   const db = await database();
-  const where = category ? and(eq(marketplaceProducts.status, "published"), eq(marketplaceProducts.category, category)) : eq(marketplaceProducts.status, "published");
+  const conditions = [eq(marketplaceProducts.status, "published")];
+  if (input.category) conditions.push(eq(marketplaceProducts.category, input.category));
+  if (input.search) {
+    const searchTerm = `%${input.search}%`;
+    conditions.push(or(like(marketplaceProducts.name, searchTerm), like(marketplaceProducts.description, searchTerm))!);
+  }
+  const where = conditions.length === 1 ? conditions[0]! : and(...conditions);
   const rows = await db.select({ product: marketplaceProducts, seller: sellerProfiles, image: productImages }).from(marketplaceProducts).innerJoin(sellerProfiles, eq(marketplaceProducts.sellerId, sellerProfiles.id)).leftJoin(productImages, eq(productImages.productId, marketplaceProducts.id)).where(where).orderBy(desc(marketplaceProducts.publishedAt));
-  return rows.map(({ product, seller, image }) => ({ ...product, sellerName: seller.shopName, sellerSlug: seller.shopSlug, imageUrl: image?.imageUrl ?? null }));
+  return serializePublishedProducts(rows);
+}
+
+export async function getPublishedProduct(productId: number) {
+  const db = await database();
+  const rows = await db.select({ product: marketplaceProducts, seller: sellerProfiles, image: productImages }).from(marketplaceProducts).innerJoin(sellerProfiles, eq(marketplaceProducts.sellerId, sellerProfiles.id)).leftJoin(productImages, eq(productImages.productId, marketplaceProducts.id)).where(and(eq(marketplaceProducts.id, productId), eq(marketplaceProducts.status, "published")));
+  return serializePublishedProducts(rows)[0] ?? null;
 }
 
 export async function createBuyerContact(userId: number, input: { productId: number; message: string }) {
