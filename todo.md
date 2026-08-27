@@ -11,5 +11,5 @@
 - [x] Add a local Figma source-builder plugin that can create the editable Anilyfe design board inside the standard Figma file.
 - [x] Add unit tests for the category/model mapping and Figma synchronization configuration validation.
 - [x] Verify desktop and mobile rendering, GLB model loading, accessibility-sensitive motion, and production build output.
-- [ ] Push the verified permanent project baseline to the private GitHub repository.
+- [x] Push the verified permanent project baseline to the private GitHub repository.
 - [ ] Save a production checkpoint and provide the permanent-preview and publication instructions.
