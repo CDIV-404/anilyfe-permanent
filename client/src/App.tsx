@@ -6,6 +6,10 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import SellerDashboard from "@/pages/SellerDashboard";
 import MarketplaceCatalog from "@/pages/MarketplaceCatalog";
 import ProductDetail from "@/pages/ProductDetail";
+import UserCreateAccount from "@/pages/UserCreateAccount";
+import UserLogin from "@/pages/UserLogin";
+import AdminCreateAccount from "@/pages/AdminCreateAccount";
+import AdminLogin from "@/pages/AdminLogin";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -17,8 +21,12 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/account"} component={Account} />
+      <Route path={"/account/create"} component={UserCreateAccount} />
+      <Route path={"/account/login"} component={UserLogin} />
       <Route path={"/seller"} component={SellerDashboard} />
       <Route path={"/admin"} component={AdminDashboard} />
+      <Route path={"/admin/create"} component={AdminCreateAccount} />
+      <Route path={"/admin/login"} component={AdminLogin} />
       <Route path={"/marketplace"} component={MarketplaceCatalog} />
       <Route path={"/product/:productId"} component={ProductDetail} />
       <Route path={"/404"} component={NotFound} />

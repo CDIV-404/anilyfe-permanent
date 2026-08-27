@@ -39,3 +39,8 @@
 - [x] Add client-side saved-item and local-cart behavior with a clear pre-checkout state and no payment collection.
 - [x] Validate buyer flows at desktop and mobile widths, run unit tests and the production build, and review the latest browser-console output.
 - [x] Save the buyer-experience checkpoint and synchronize the completed source to the private GitHub repository.
+- [x] Inspect the supplied development package and record which account-flow designs or reusable assets can be safely adapted into Anilyfe.
+- [x] Define and document separate user and administrator account-entry boundaries that preserve secure shared authentication and enforce administrator authorization after login.
+- [x] Build distinct user create-account/login and administrator create-account/login pages while keeping administrator access role-gated.
+- [x] Verify the new account flows at desktop and mobile sizes, validate role-safe routes, run tests/build, and review the latest browser-console output.
+- [ ] Save the role-separated account-flow checkpoint and synchronize the completed source to the private GitHub repository.
