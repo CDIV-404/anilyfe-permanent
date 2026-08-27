@@ -33,4 +33,4 @@
 - [x] Add seller listing editing, including product details and price changes, and verify its protected API, seller/admin workspaces, and responsive browser rendering.
 - [x] Rebuild the public homepage to match the supplied marketplace dashboard composition while retaining responsive design and the existing Three.js product-preview capability.
 - [x] Test data validation, role authorization, storage upload behavior, desktop/mobile layouts, and the production build.
-- [ ] Save the reference-matched marketplace checkpoint and synchronize the completed source to the private GitHub repository.
+- [x] Save the reference-matched marketplace checkpoint and synchronize the completed source to the private GitHub repository.
