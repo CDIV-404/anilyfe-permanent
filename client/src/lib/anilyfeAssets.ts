@@ -1,10 +1,10 @@
 export const anilyfeAssets = {
-  hero: "/manus-storage/anilyfe-futuristic-hero_ef313804.png",
+  hero: "/manus-storage/anilyfe-marketplace-hero-light_1cdb7313.png",
   products: {
-    figure: "/manus-storage/product-figure_379639a9.png",
-    hoodie: "/manus-storage/product-hoodie_28ded618.png",
-    poster: "/manus-storage/product-poster_f291af8a.png",
-    manga: "/manus-storage/product-manga-box_81cf8f69.png",
+    figure: "/manus-storage/anilyfe-product-figure-light_268c2bc3.png",
+    hoodie: "/manus-storage/anilyfe-product-hoodie-light_3d68ff7a.png",
+    poster: "/manus-storage/anilyfe-product-poster-light_34514b49.png",
+    manga: "/manus-storage/anilyfe-product-boxset-light_ef77380b.png",
     digital: "/manus-storage/product-digital-pack_0b9b97c3.png",
   },
   collectionArt: {

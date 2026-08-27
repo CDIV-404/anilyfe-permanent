@@ -13,7 +13,7 @@ describe("Anilyfe production asset manifest", () => {
 
   it("keeps runtime images on durable project storage", () => {
     expect(anilyfeAssets.hero).toMatch(/^\/manus-storage\//);
-    expect(anilyfeAssets.hero).toContain("anilyfe-futuristic-hero_");
+    expect(anilyfeAssets.hero).toContain("anilyfe-marketplace-hero-light_");
     expect(Object.values(anilyfeAssets.products)).toHaveLength(5);
     expect(Object.values(anilyfeAssets.products).every((url) => url.startsWith("/manus-storage/"))).toBe(true);
     expect(Object.values(anilyfeAssets.collectionArt)).toHaveLength(4);

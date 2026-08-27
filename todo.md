@@ -22,3 +22,15 @@
 - [x] Rebuild the homepage with Tailwind-powered anime-tech navigation, hero, category controls, product cards, and 3D stage presentation.
 - [x] Verify the futuristic interface on desktop and mobile, including the interactive GLB stage, durable media references, and production build.
 - [x] Save the futuristic anime production checkpoint and synchronize the completed source to the private GitHub repository.
+- [x] Translate the supplied marketplace reference into a responsive Anilyfe storefront information architecture with category rail, utility header, hero, deals, community, and seller promotion modules.
+- [x] Add seller-profile, marketplace-product, product-image, buyer-contact, and announcement tables with approval statuses and ownership fields.
+- [x] Implement and test protected/admin ownership enforcement so each role can access and mutate only permitted marketplace records.
+- [x] Implement protected buyer, seller, and administrator tRPC workflows for profiles, seller approval, product submission, announcements, and customer messages.
+- [x] Implement secure seller product-image upload to durable object storage and persist only image metadata and URLs in the database.
+- [x] Generate original anime marketplace hero and product presentation artwork for the new reference layout.
+- [x] Render the new hero and product presentation artwork inside the rebuilt marketplace dashboard and verify it in browser screenshots.
+- [x] Build create-account and login entry points, a buyer demo-account guide, seller product-creation and inbox pages, and an administrator approval and announcement dashboard.
+- [x] Add seller listing editing, including product details and price changes, and verify its protected API, seller/admin workspaces, and responsive browser rendering.
+- [x] Rebuild the public homepage to match the supplied marketplace dashboard composition while retaining responsive design and the existing Three.js product-preview capability.
+- [x] Test data validation, role authorization, storage upload behavior, desktop/mobile layouts, and the production build.
+- [ ] Save the reference-matched marketplace checkpoint and synchronize the completed source to the private GitHub repository.
