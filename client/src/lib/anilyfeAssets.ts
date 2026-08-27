@@ -1,0 +1,27 @@
+export const anilyfeAssets = {
+  hero: "/manus-storage/hero-anime-marketplace_7fee5168.png",
+  products: {
+    figure: "/manus-storage/product-figure_379639a9.png",
+    hoodie: "/manus-storage/product-hoodie_28ded618.png",
+    poster: "/manus-storage/product-poster_f291af8a.png",
+    manga: "/manus-storage/product-manga-box_81cf8f69.png",
+    digital: "/manus-storage/product-digital-pack_0b9b97c3.png",
+  },
+  models: {
+    figure: "/manus-storage/anilyfe-figure_9a1a1f41.glb",
+    hoodie: "/manus-storage/anilyfe-hoodie_a85baece.glb",
+    poster: "/manus-storage/anilyfe-poster_fe0e9bcd.glb",
+    manga: "/manus-storage/anilyfe-manga-box_43891188.glb",
+    digital: "/manus-storage/anilyfe-digital-pack_33f02eaf.glb",
+    accessory: "/manus-storage/anilyfe-accessory_f7bd8d24.glb",
+    home: "/manus-storage/anilyfe-home-living_d2e2a614.glb",
+    cosplay: "/manus-storage/anilyfe-cosplay_8f8e610f.glb",
+  },
+  figma: {
+    designSystem: "/manus-storage/anilyfe-design-system_7116482e.svg",
+    desktopFrame: "/manus-storage/anilyfe-homepage-desktop_fc26f32e.svg",
+    mobileFrame: "/manus-storage/anilyfe-homepage-mobile_ce38b50a.svg",
+  },
+} as const;
+
+export type AnilyfeModelKey = keyof typeof anilyfeAssets.models;
