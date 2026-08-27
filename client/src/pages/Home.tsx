@@ -1,38 +1,35 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
 import { ArrowUpRight, ChevronRight, Heart, Menu, Search, ShoppingBag, Sparkles, X } from "lucide-react";
 import { anilyfeAssets, type AnilyfeModelKey } from "@/lib/anilyfeAssets";
 
 const AnilyfeModelViewer = lazy(() => import("@/components/AnilyfeModelViewer"));
 
-type Collection = {
-  key: AnilyfeModelKey;
-  title: string;
-  label: string;
-  description: string;
-  subcategories: string[];
-  image: string;
-};
+type Collection = { key: AnilyfeModelKey; title: string; label: string; description: string; subcategories: string[]; image: string; signal: string; };
 
 const collections: Collection[] = [
-  { key: "figure", title: "Figures & collectibles", label: "Sage mode figure", description: "Sculpted stories for shelves, desks, and devoted collections.", subcategories: ["Original heroes", "Mecha & robots", "Limited editions"], image: anilyfeAssets.products.figure },
-  { key: "hoodie", title: "Clothing & apparel", label: "Shadow crest hoodie", description: "Comfort-led pieces shaped by the worlds you return to.", subcategories: ["Streetwear", "Team jerseys", "Soft layers"], image: anilyfeAssets.products.hoodie },
-  { key: "manga", title: "Manga & books", label: "Shonen box set", description: "Pages, panels, and collector sets for quiet late-night reading.", subcategories: ["Box sets", "Art books", "Light novels"], image: anilyfeAssets.products.manga },
-  { key: "accessory", title: "Accessories", label: "Collector accessory set", description: "Small symbols with the power to make everyday rituals feel personal.", subcategories: ["Keychains", "Jewellery", "Desk finds"], image: anilyfeAssets.products.digital },
-  { key: "poster", title: "Posters & wall art", label: "Battle scene print", description: "Thoughtful art for rooms that deserve a story of their own.", subcategories: ["Hobby posters", "Wall art", "Framed prints"], image: anilyfeAssets.products.poster },
-  { key: "digital", title: "Digital products", label: "Wallpaper pack", description: "Instantly delivered worlds for your screen, stream, and space.", subcategories: ["Wallpapers", "Sound packs", "Creator tools"], image: anilyfeAssets.products.digital },
-  { key: "home", title: "Home & living", label: "Anime living set", description: "Soft details that turn a room into a sanctuary for fandom.", subcategories: ["Mugs", "Desk mats", "Textiles"], image: anilyfeAssets.products.manga },
-  { key: "cosplay", title: "Cosplay", label: "Fantasy cosplay set", description: "Layers, armor, and expressive pieces for fully inhabited characters.", subcategories: ["Cloaks", "Armor", "Wigs & props"], image: anilyfeAssets.products.hoodie },
+  { key: "figure", title: "Figures & collectibles", label: "Sage mode figure", description: "Display-ready objects engineered for the center of your shelf.", subcategories: ["Original heroes", "Mecha & robots", "Limited editions"], image: anilyfeAssets.collectionArt.figures, signal: "01" },
+  { key: "hoodie", title: "Clothing & apparel", label: "Shadow crest hoodie", description: "Wearable signals for late-night marathons and city-scale missions.", subcategories: ["Streetwear", "Team jerseys", "Soft layers"], image: anilyfeAssets.collectionArt.apparel, signal: "02" },
+  { key: "manga", title: "Manga & books", label: "Shonen box set", description: "Physical volumes, art books, and pages charged with new worlds.", subcategories: ["Box sets", "Art books", "Light novels"], image: anilyfeAssets.collectionArt.manga, signal: "03" },
+  { key: "accessory", title: "Accessories", label: "Collector accessory set", description: "Small, iconic details built to travel through the everyday.", subcategories: ["Keychains", "Jewellery", "Desk finds"], image: anilyfeAssets.collectionArt.figures, signal: "04" },
+  { key: "poster", title: "Posters & wall art", label: "Battle scene print", description: "Frame the moments that keep replaying after the credits roll.", subcategories: ["Hobby posters", "Wall art", "Framed prints"], image: anilyfeAssets.collectionArt.art, signal: "05" },
+  { key: "digital", title: "Digital products", label: "Wallpaper pack", description: "Instant portal access for screens, streams, and creative spaces.", subcategories: ["Wallpapers", "Sound packs", "Creator tools"], image: anilyfeAssets.collectionArt.art, signal: "06" },
+  { key: "home", title: "Home & living", label: "Anime living set", description: "Atmospheric room upgrades for the world beyond the screen.", subcategories: ["Mugs", "Desk mats", "Textiles"], image: anilyfeAssets.collectionArt.manga, signal: "07" },
+  { key: "cosplay", title: "Cosplay", label: "Fantasy cosplay set", description: "Layer your own character arc with armor, cloth, and props.", subcategories: ["Cloaks", "Armor", "Wigs & props"], image: anilyfeAssets.collectionArt.apparel, signal: "08" },
 ];
 
 const featured = [
-  { name: "Sage mode figure", category: "Collectibles", image: anilyfeAssets.products.figure, tone: "lilac" },
-  { name: "Shadow crest hoodie", category: "Apparel", image: anilyfeAssets.products.hoodie, tone: "blush" },
-  { name: "Battle scene print", category: "Wall art", image: anilyfeAssets.products.poster, tone: "mint" },
-  { name: "Shonen box set", category: "Manga", image: anilyfeAssets.products.manga, tone: "cream" },
+  { name: "Sage mode figure", category: "Collectible drop", image: anilyfeAssets.collectionArt.figures, signal: "A-01" },
+  { name: "Shadow crest hoodie", category: "Street signal", image: anilyfeAssets.collectionArt.apparel, signal: "B-12" },
+  { name: "Battle scene print", category: "Wall system", image: anilyfeAssets.collectionArt.art, signal: "C-07" },
+  { name: "Shonen box set", category: "Archive edition", image: anilyfeAssets.collectionArt.manga, signal: "D-22" },
 ];
 
 function KunaiMark() {
-  return <svg aria-hidden="true" className="kunai-mark" viewBox="0 0 52 72" fill="none"><path d="M25.9 3.3 35 18.8 29.2 22l-.6 22.7 8.3 16.2-11 7.5-11-7.5 8.3-16.2L22.6 22l-5.8-3.2 9.1-15.5Z" fill="currentColor"/><path d="m25.9 17.9 3.5 6-3.5 17.6-3.5-17.6 3.5-6Z" fill="#fff7ed" opacity=".92"/></svg>;
+  return <svg aria-hidden="true" className="h-7 w-4 text-cyan-300 drop-shadow-[0_0_12px_rgba(103,232,249,.8)]" viewBox="0 0 52 72" fill="none"><path d="M25.9 3.3 35 18.8 29.2 22l-.6 22.7 8.3 16.2-11 7.5-11-7.5 8.3-16.2L22.6 22l-5.8-3.2 9.1-15.5Z" fill="currentColor" /><path d="m25.9 17.9 3.5 6-3.5 17.6-3.5-17.6 3.5-6Z" fill="#07121f" opacity=".96" /></svg>;
+}
+
+function SystemLabel({ children }: { children: ReactNode }) {
+  return <p className="mb-3 flex items-center gap-2 font-display text-[9px] font-semibold uppercase tracking-[0.25em] text-cyan-200/80 before:h-px before:w-5 before:bg-cyan-300">{children}</p>;
 }
 
 export default function Home() {
@@ -49,52 +46,29 @@ export default function Home() {
     return () => mediaQuery.removeEventListener("change", syncPreference);
   }, []);
 
+  const scrollToModel = () => document.querySelector("#model-stage")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
+
   return <div className="anilyfe-site">
-    <div className="background-veil veil-one" />
-    <div className="background-veil veil-two" />
-    <div className="background-lines" aria-hidden="true" />
-    <header className="site-header page-shell">
-      <a href="#top" className="brand" aria-label="Anilyfe home"><span>AN</span><KunaiMark /><span>LYFE</span></a>
-      <nav className="desktop-nav" aria-label="Primary navigation"><a href="#collections">Collections</a><a href="#featured">Curated finds</a><a href="#about">Our story</a></nav>
-      <div className="header-actions"><button className="icon-button" aria-label="Search"><Search size={17} /></button><button className="icon-button" aria-label="Wishlist"><Heart size={17} /></button><button className="icon-button" aria-label="Cart"><ShoppingBag size={17} /></button><button className="icon-button mobile-menu" aria-label={mobileMenuOpen ? "Close menu" : "Open menu"} aria-expanded={mobileMenuOpen} onClick={() => setMobileMenuOpen((open) => !open)}>{mobileMenuOpen ? <X size={19} /> : <Menu size={19} />}</button></div>
+    <div className="background-grid" aria-hidden="true" /><div className="background-scanlines" aria-hidden="true" /><div className="background-glow background-glow-top" aria-hidden="true" /><div className="background-glow background-glow-bottom" aria-hidden="true" />
+    <header className="relative z-30 mx-auto flex h-[76px] w-[min(1180px,calc(100%-32px))] items-center justify-between border-b border-cyan-100/10 lg:h-[88px]">
+      <a href="#top" className="brand-mark group" aria-label="Anilyfe home"><span>AN</span><KunaiMark /><span>LYFE</span></a>
+      <nav className="hidden items-center gap-8 font-display text-[10px] font-medium uppercase tracking-[0.17em] text-slate-300/75 md:flex" aria-label="Primary navigation"><a className="nav-link" href="#collections">Collections</a><a className="nav-link" href="#featured">Signal drops</a><a className="nav-link" href="#about">Protocol</a></nav>
+      <div className="flex items-center gap-1.5"><button className="hud-icon-button" type="button" aria-label="Search"><Search size={16} /></button><button className="hud-icon-button hidden sm:grid" type="button" aria-label="Wishlist"><Heart size={16} /></button><button className="hud-icon-button hidden sm:grid" type="button" aria-label="Shopping bag"><ShoppingBag size={16} /></button><button className="hud-icon-button grid md:hidden" type="button" aria-label={mobileMenuOpen ? "Close menu" : "Open menu"} aria-expanded={mobileMenuOpen} onClick={() => setMobileMenuOpen((open) => !open)}>{mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}</button></div>
     </header>
-    {mobileMenuOpen && <nav className="mobile-drawer" aria-label="Mobile navigation"><a href="#collections" onClick={() => setMobileMenuOpen(false)}>Collections <ChevronRight size={16} /></a><a href="#featured" onClick={() => setMobileMenuOpen(false)}>Curated finds <ChevronRight size={16} /></a><a href="#about" onClick={() => setMobileMenuOpen(false)}>Our story <ChevronRight size={16} /></a></nav>}
+    {mobileMenuOpen && <nav className="fixed inset-x-4 top-[68px] z-40 border border-cyan-200/30 bg-[#081120]/95 p-1.5 shadow-[0_18px_55px_rgba(0,0,0,.48)] backdrop-blur-xl md:hidden" aria-label="Mobile navigation">{[["Collections", "#collections"], ["Signal drops", "#featured"], ["Protocol", "#about"]].map(([label, href]) => <a key={label} href={href} onClick={() => setMobileMenuOpen(false)} className="flex min-h-12 items-center justify-between border-b border-cyan-100/10 px-3 font-display text-xs uppercase tracking-[0.14em] text-slate-100 last:border-0">{label}<ChevronRight size={16} className="text-cyan-300" /></a>)}</nav>}
 
-    <main id="top" className="page-shell">
-      <section className="hero-section">
-        <div className="hero-copy hero-entrance">
-          <p className="eyebrow"><span /> Anilyfe permanent edition</p>
-          <h1>Collect worlds<br /><em>with feeling.</em></h1>
-          <p className="hero-intro">A calmer marketplace for the things that make anime fandom feel like home. Explore thoughtful physical, digital, and collectible pieces.</p>
-          <div className="hero-cta-row"><a className="primary-cta" href="#collections">Explore the collections <ArrowUpRight size={16} /></a><a className="text-cta" href="#about">Our collector promise <ChevronRight size={16} /></a></div>
-          <div className="hero-notes"><span>Curated with intention</span><span>Interactive 3D previews</span><span>Made for collectors</span></div>
-        </div>
-        <div className="hero-model-card">
-          <div className="corner-bracket top-left" /><div className="corner-bracket top-right" /><div className="corner-bracket bottom-left" /><div className="corner-bracket bottom-right" />
-          <div className="model-card-label"><span>01 / 08</span><span>Interactive object study</span></div>
-          <Suspense fallback={<div className="model-viewer-fallback">Preparing the interactive 3D preview…</div>}><AnilyfeModelViewer label={selected.label} modelUrl={anilyfeAssets.models[selected.key]} reducedMotion={reducedMotion} /></Suspense>
-        </div>
+    <main id="top" className="relative z-10 mx-auto w-[min(1180px,calc(100%-32px))]">
+      <section className="relative grid min-h-[660px] items-center gap-10 py-16 lg:grid-cols-[.9fr_1.1fr] lg:py-20">
+        <div className="hero-art" aria-hidden="true"><img src={anilyfeAssets.hero} alt="" /></div>
+        <div className="relative z-10 max-w-[610px] hero-entrance"><SystemLabel>ANILYFE // NEXT-ERA MARKETPLACE</SystemLabel><h1 className="font-display text-[clamp(3.35rem,8vw,7.4rem)] font-black uppercase leading-[.79] tracking-[-.065em] text-white">Shop the<br /><span className="neon-text">anime</span> <span className="text-slate-300">signal.</span></h1><p className="mt-7 max-w-md text-sm leading-7 text-slate-300/80 sm:text-[15px]">Original collectibles, apparel, wall art, digital packs, and real interactive 3D previews—curated for the fandom worlds still loading in your head.</p><div className="mt-8 flex flex-wrap items-center gap-4"><a className="cyber-button" href="#collections">Enter collections <ArrowUpRight size={16} /></a><button className="inline-flex items-center gap-2 border-b border-cyan-200/45 pb-1 font-display text-[10px] uppercase tracking-[0.14em] text-slate-200 transition hover:border-cyan-300 hover:text-cyan-200" type="button" onClick={scrollToModel}>Launch 3D station <ChevronRight size={15} /></button></div><div className="mt-10 flex flex-wrap gap-x-6 gap-y-3 font-display text-[9px] uppercase tracking-[0.15em] text-slate-400"><span className="flex items-center gap-2 before:h-1.5 before:w-1.5 before:rounded-full before:bg-cyan-300 before:shadow-[0_0_10px_#67e8f9]">3D collectible scans</span><span className="flex items-center gap-2 before:h-1.5 before:w-1.5 before:rounded-full before:bg-fuchsia-400 before:shadow-[0_0_10px_#e879f9]">8 live categories</span></div></div>
+        <div id="model-stage" className="portal-frame relative isolate min-h-[430px] overflow-hidden border border-cyan-200/25 bg-[#061323]/70 p-3 shadow-[0_20px_80px_rgba(0,0,0,.45)] backdrop-blur-sm sm:min-h-[500px] sm:p-4"><div className="relative z-10 flex items-center justify-between border-b border-cyan-100/15 px-1 pb-3 font-display text-[9px] uppercase tracking-[0.16em] text-cyan-100/70"><span><span className="mr-2 text-cyan-300">{selected.signal}</span> Holo-object laboratory</span><span className="flex items-center gap-2 text-fuchsia-200"><i className="status-pulse" /> Live render</span></div><Suspense fallback={<div className="model-viewer-fallback">Initializing holographic preview…</div>}><AnilyfeModelViewer label={selected.label} modelUrl={anilyfeAssets.models[selected.key]} reducedMotion={reducedMotion} /></Suspense><div className="pointer-events-none absolute bottom-3 left-5 z-20 font-display text-[8px] uppercase tracking-[0.2em] text-cyan-100/55">Module: {selected.key}-a11</div></div>
       </section>
 
-      <section className="quiet-marquee" aria-label="Marketplace values"><span>Quietly collectible</span><i /><span>Built for fandom</span><i /><span>Gentle motion</span><i /><span>Always evolving</span></section>
-
-      <section id="collections" className="collection-section">
-        <div className="section-header"><div><p className="eyebrow"><span /> Explore by feeling</p><h2>Categories with a little more world inside them.</h2></div><p className="section-aside">Choose a collection to reveal its subcategories and switch the live 3D object.</p></div>
-        <div className="collection-tabs" role="tablist" aria-label="Marketplace collections">
-          {collections.map((collection, index) => <button key={collection.key} type="button" role="tab" aria-selected={selectedKey === collection.key} className={selectedKey === collection.key ? "active" : ""} onClick={() => setSelectedKey(collection.key)}><span>0{index + 1}</span>{collection.title}</button>)}
-        </div>
-        <div className="active-collection-card">
-          <div className="active-collection-image"><img src={selected.image} alt="" /></div>
-          <div className="active-collection-copy"><p className="eyebrow"><span /> {selected.title}</p><h3>{selected.description}</h3><div className="subcategory-list">{selected.subcategories.map((subcategory) => <a href="#featured" key={subcategory}>{subcategory}<ArrowUpRight size={14} /></a>)}</div></div>
-          <button type="button" className="model-focus-button" onClick={() => document.querySelector(".hero-model-card")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" })}><Sparkles size={16} /> Focus 3D preview</button>
-        </div>
-      </section>
-
-      <section id="featured" className="featured-section"><div className="section-header compact"><div><p className="eyebrow"><span /> Gentle discoveries</p><h2>Curated finds for every kind of fan.</h2></div><a href="#collections" className="text-cta">View all collections <ChevronRight size={16} /></a></div><div className="product-grid">{featured.map((product, index) => <article className={`product-card ${product.tone}`} key={product.name}><div className="product-index">0{index + 1}</div><div className="product-image"><img src={product.image} alt={product.name} /></div><div className="product-content"><p>{product.category}</p><h3>{product.name}</h3><button type="button" aria-label={`Explore ${product.name}`}><ArrowUpRight size={17} /></button></div></article>)}</div></section>
-
-      <section id="about" className="figma-bridge"><div className="figma-bridge-number">03</div><div><p className="eyebrow"><span /> Collector promise</p><h2>Objects with stories.<br />A home for your fandom.</h2></div><p>Anilyfe keeps product artwork and interactive 3D previews on reliable media storage, so browsing remains light, responsive, and ready for the worlds you return to most.</p><div className="figma-actions"><a href="#collections">Explore all collections <ArrowUpRight size={15} /></a><a href="#top">Return to the beginning <ArrowUpRight size={15} /></a></div></section>
+      <section className="signal-tape" aria-label="Marketplace features"><span>STORY-DRIVEN GOODS</span><i /><span>INTERACTIVE GLB PREVIEWS</span><i /><span>EVERY FANDOM HAS A PORTAL</span><i /><span>PERMANENT MARKETPLACE</span></section>
+      <section id="collections" className="scroll-mt-10 py-24 sm:py-32"><div className="mb-9 grid gap-5 lg:grid-cols-[1fr_300px] lg:items-end"><div><SystemLabel>01 // COLLECTION MATRIX</SystemLabel><h2 className="max-w-3xl font-display text-[clamp(2.2rem,5vw,4.3rem)] font-bold uppercase leading-[.92] tracking-[-.05em] text-white">Pick a portal.<br /><span className="text-cyan-200">Switch the object.</span></h2></div><p className="max-w-sm text-sm leading-6 text-slate-400 lg:justify-self-end">Every category is a distinct lane in the marketplace. Select one to change the live GLB artifact in the 3D station above.</p></div><div className="grid border-l border-t border-cyan-100/15 sm:grid-cols-2 lg:grid-cols-4" role="tablist" aria-label="Marketplace collections">{collections.map((collection) => <button key={collection.key} type="button" role="tab" aria-selected={selectedKey === collection.key} onClick={() => setSelectedKey(collection.key)} className={`collection-tab group ${selectedKey === collection.key ? "collection-tab-active" : ""}`}><span className="font-display text-[9px] tracking-[0.16em] text-cyan-300/70">{collection.signal} / 08</span><strong>{collection.title}</strong><span className="collection-tab-arrow"><ArrowUpRight size={15} /></span></button>)}</div><div className="portal-frame mt-5 grid overflow-hidden border border-violet-300/20 bg-slate-950/55 md:grid-cols-[190px_1fr_auto] md:items-center"><div className="relative min-h-[190px] overflow-hidden border-b border-cyan-100/10 md:border-b-0 md:border-r"><img className="absolute inset-0 h-full w-full object-cover opacity-80 mix-blend-screen transition duration-500" src={selected.image} alt="" /><div className="absolute inset-0 bg-gradient-to-tr from-[#07121f] via-transparent to-cyan-400/15" /><span className="absolute bottom-3 left-3 font-display text-[9px] uppercase tracking-[0.18em] text-cyan-100/80">SELECTED: {selected.signal}</span></div><div className="p-6 md:p-7"><SystemLabel>{selected.title}</SystemLabel><h3 className="max-w-2xl font-display text-2xl font-bold uppercase leading-[1.02] tracking-[-.04em] text-white sm:text-3xl">{selected.description}</h3><div className="mt-5 flex flex-wrap gap-2">{selected.subcategories.map((subcategory) => <a href="#featured" key={subcategory} className="system-chip">{subcategory}<ArrowUpRight size={12} /></a>)}</div></div><button type="button" onClick={scrollToModel} className="m-6 inline-flex items-center justify-center gap-2 self-end border border-cyan-200/40 bg-cyan-200/5 px-4 py-3 font-display text-[9px] uppercase tracking-[0.14em] text-cyan-100 transition hover:bg-cyan-200/15 hover:text-white md:justify-self-end"><Sparkles size={15} /> View 3D</button></div></section>
+      <section id="featured" className="scroll-mt-10 pb-24 sm:pb-32"><div className="mb-9 flex flex-wrap items-end justify-between gap-5"><div><SystemLabel>02 // SIGNAL DROPS</SystemLabel><h2 className="font-display text-[clamp(2.2rem,5vw,4.25rem)] font-bold uppercase leading-[.92] tracking-[-.05em] text-white">Fresh from the <span className="text-fuchsia-300">archive.</span></h2></div><a className="hidden border-b border-fuchsia-300/50 pb-1 font-display text-[10px] uppercase tracking-[0.14em] text-fuchsia-200 transition hover:text-white sm:inline-flex sm:items-center sm:gap-2" href="#collections">Browse all channels <ChevronRight size={15} /></a></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{featured.map((product) => <article className="product-card group" key={product.name}><div className="absolute left-3 top-3 z-10 flex w-[calc(100%-24px)] items-center justify-between font-display text-[8px] uppercase tracking-[0.18em] text-cyan-100/70"><span>{product.signal}</span><span className="rounded-full border border-cyan-100/20 bg-[#061323]/70 px-2 py-1 backdrop-blur">New signal</span></div><div className="product-image"><img src={product.image} alt={product.name} /><div className="product-image-glow" /></div><div className="grid grid-cols-[1fr_auto] items-end gap-2 border-t border-cyan-100/10 p-4"><p className="col-span-full font-display text-[9px] uppercase tracking-[0.15em] text-cyan-200/70">{product.category}</p><h3 className="font-display text-lg font-bold uppercase leading-[.98] tracking-[-.04em] text-white">{product.name}</h3><button className="hud-icon-button h-9 w-9" type="button" aria-label={`Explore ${product.name}`}><ArrowUpRight size={16} /></button></div></article>)}</div></section>
+      <section id="about" className="scroll-mt-10 pb-24 sm:pb-32"><div className="portal-frame grid overflow-hidden border border-cyan-200/20 bg-[linear-gradient(115deg,rgba(8,26,47,.88),rgba(34,10,59,.78))] p-7 sm:p-10 lg:grid-cols-[.8fr_1.2fr_auto] lg:items-end"><div className="font-display text-5xl font-black tracking-[-.08em] text-cyan-300/90">03</div><div className="mt-8 lg:mt-0"><SystemLabel>COLLECTOR PROTOCOL</SystemLabel><h2 className="font-display text-[clamp(2rem,4vw,3.55rem)] font-bold uppercase leading-[.94] tracking-[-.055em] text-white">Made for the people who keep the universe open.</h2><p className="mt-5 max-w-2xl text-sm leading-7 text-slate-300/75">Anilyfe pairs durable marketplace imagery with real 3D collectible models, so the experience is designed to feel active without pretending it is a checkout system. This is a living storefront test bed for every fan world still ahead.</p></div><div className="mt-8 lg:mt-0 lg:justify-self-end"><a href="#top" className="cyber-button cyber-button-violet">Back to source <ArrowUpRight size={16} /></a></div></div></section>
     </main>
-
-    <footer className="site-footer page-shell"><a href="#top" className="brand footer-brand"><span>AN</span><KunaiMark /><span>LYFE</span></a><p>For the fans who make a world feel lived in.</p><div><a href="#collections">Collections</a><a href="#about">Our story</a><a href="#top">Back to top</a></div><span>© 2026 Anilyfe</span></footer>
+    <footer className="relative z-10 mx-auto grid min-h-28 w-[min(1180px,calc(100%-32px))] gap-5 border-t border-cyan-100/10 py-7 text-xs text-slate-400 sm:grid-cols-[auto_1fr_auto] sm:items-center"><a href="#top" className="brand-mark text-xl"><span>AN</span><KunaiMark /><span>LYFE</span></a><p className="sm:justify-self-center">Marketplace portal for stories that outlive the scroll.</p><div className="flex gap-4 font-display text-[9px] uppercase tracking-[.13em]"><a className="nav-link" href="#collections">Collections</a><a className="nav-link" href="#top">Top</a></div></footer>
   </div>;
 }
