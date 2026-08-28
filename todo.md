@@ -44,3 +44,14 @@
 - [x] Build distinct user create-account/login and administrator create-account/login pages while keeping administrator access role-gated.
 - [x] Verify the new account flows at desktop and mobile sizes, validate role-safe routes, run tests/build, and review the latest browser-console output.
 - [x] Save the role-separated account-flow checkpoint and synchronize the completed source to the private GitHub repository.
+- [x] Define and document the white-and-blue anime-futurist visual system, motion rules, glassmorphism usage, and secure primary-administrator governance model.
+- [x] Generate and register original blue-white anime-futurist animated-wallpaper media and enhance the existing real GLB presentation.
+- [x] Verify the wallpaper uses a durable `/manus-storage/` URL and add a durable-media regression assertion.
+- [x] Add primary-administrator designation, seller public IDs, seller badges, and supported listing currencies to the schema, migrate safely, and verify the database changes.
+- [x] Add administrator-managed public site sections with safe draft/published controls, then render published sections in the buyer marketplace.
+- [x] Add secure sign-out visibility and role redirects, primary-admin-only administrator approval, seller approval/suspension, seller badge assignment, listing currency controls, and configurable public sections to protected APIs.
+- [x] Implement and test explicit primary-admin seller addition and removal workflows in addition to the existing application approval and suspension controls.
+- [x] Rebuild the public, buyer, seller, and administrator UI with lively blue-white visual layers, glassmorphism, hover/motion effects, animated wallpaper, enhanced 3D presentation, and configurable public sections.
+- [x] Verify primary-admin safeguards, seller ID/badge and currency workflows, desktop/mobile responsiveness, and production build quality.
+- [x] Explicitly verify the new sign-out/sign-in return-path flow and reduced-motion behavior after the lively animation refresh.
+- [x] Save the lively anime-futurist marketplace checkpoint and synchronize the completed source to the private GitHub repository.

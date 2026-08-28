@@ -1,5 +1,6 @@
 import { COOKIE_NAME } from "@shared/const";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
@@ -12,13 +13,31 @@ const productInputSchema = z.object({
   description: z.string().trim().min(12).max(4000),
   category: categorySchema,
   price: z.string().regex(/^\d{1,8}(\.\d{1,2})?$/, "Enter a valid price."),
-  currency: z.string().trim().toUpperCase().length(3).default("NGN"),
+  currency: z.enum(marketplaceDb.SUPPORTED_CURRENCIES).default("NGN"),
   status: z.enum(["draft", "submitted"]),
+});
+const siteSectionInputSchema = z.object({
+  sectionType: z.enum(["banner", "community", "collection", "notice"]),
+  title: z.string().trim().min(3).max(180),
+  body: z.string().trim().min(12).max(5000),
+  actionLabel: z.string().trim().min(2).max(80).optional(),
+  actionUrl: z.string().trim().regex(/^(\/|https:\/\/)/, "Use a marketplace path or an HTTPS link.").max(500).optional(),
+  imageUrl: z.string().trim().regex(/^(\/manus-storage\/|https:\/\/)/, "Use a durable storage path or HTTPS image URL.").max(2000).optional(),
+  displayOrder: z.number().int().min(0).max(10_000).default(0),
+  status: z.enum(["draft", "published"]),
 });
 
 function sellerSlug(shopName: string, userId: number) {
   const normalized = shopName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 140);
   return `${normalized || "anilyfe-shop"}-${userId}`;
+}
+
+async function requirePrimaryAdministrator(user: { id: number; openId: string }) {
+  const governance = await marketplaceDb.getGovernanceForUser(user);
+  if (!governance.isPrimaryAdmin) {
+    throw new TRPCError({ code: "FORBIDDEN", message: "Only the primary marketplace administrator can approve administrators, approve or suspend sellers, or assign seller badges." });
+  }
+  return governance;
 }
 
 export const appRouter = router({
@@ -38,6 +57,7 @@ export const appRouter = router({
     products: publicProcedure.input(z.object({ category: categorySchema.optional(), search: z.string().trim().min(1).max(120).optional() }).optional()).query(({ input }) => marketplaceDb.listPublishedProducts(input)),
     product: publicProcedure.input(z.object({ productId: z.number().int().positive() })).query(({ input }) => marketplaceDb.getPublishedProduct(input.productId)),
     announcements: publicProcedure.query(() => marketplaceDb.listPublishedAnnouncements()),
+    sections: publicProcedure.query(() => marketplaceDb.listPublishedSiteSections()),
   }),
   seller: router({
     profile: protectedProcedure.query(({ ctx }) => marketplaceDb.getSellerProfileForUser(ctx.user.id)),
@@ -61,12 +81,23 @@ export const appRouter = router({
     contactSeller: protectedProcedure.input(z.object({ productId: z.number().int().positive(), message: z.string().trim().min(8).max(2400) })).mutation(({ ctx, input }) => marketplaceDb.createBuyerContact(ctx.user.id, input)),
   }),
   admin: router({
+    governance: adminProcedure.query(({ ctx }) => marketplaceDb.getGovernanceForUser(ctx.user)),
+    requestAccess: protectedProcedure.input(z.object({ reason: z.string().trim().min(8).max(1200).optional() })).mutation(({ ctx, input }) => marketplaceDb.createAdminRequest(ctx.user.id, input.reason)),
     counts: adminProcedure.query(() => marketplaceDb.getAdminCounts()),
     sellers: adminProcedure.query(() => marketplaceDb.listAdminSellerProfiles()),
-    reviewSeller: adminProcedure.input(z.object({ sellerId: z.number().int().positive(), status: z.enum(["approved", "rejected"]), reviewNote: z.string().trim().max(1000).optional() })).mutation(({ ctx, input }) => marketplaceDb.reviewSellerProfile(ctx.user.id, input.sellerId, input.status, input.reviewNote)),
+    requests: adminProcedure.query(async ({ ctx }) => { await requirePrimaryAdministrator(ctx.user); return marketplaceDb.listAdminRequests(); }),
+    reviewAdminRequest: adminProcedure.input(z.object({ requestId: z.number().int().positive(), status: z.enum(["approved", "rejected", "revoked"]), reviewNote: z.string().trim().max(1000).optional() })).mutation(async ({ ctx, input }) => { await requirePrimaryAdministrator(ctx.user); return marketplaceDb.reviewAdminRequest(ctx.user.id, input.requestId, input.status, input.reviewNote); }),
+    reviewSeller: adminProcedure.input(z.object({ sellerId: z.number().int().positive(), status: z.enum(["approved", "rejected"]), reviewNote: z.string().trim().max(1000).optional() })).mutation(async ({ ctx, input }) => { await requirePrimaryAdministrator(ctx.user); return marketplaceDb.reviewSellerProfile(ctx.user.id, input.sellerId, input.status, input.reviewNote); }),
+    addSeller: adminProcedure.input(z.object({ userId: z.number().int().positive(), shopName: z.string().trim().min(3).max(140), bio: z.string().trim().max(2400).optional(), contactEmail: z.string().trim().email().optional() })).mutation(async ({ ctx, input }) => { await requirePrimaryAdministrator(ctx.user); return marketplaceDb.addSellerProfileForPrimaryAdmin(ctx.user.id, input); }),
+    suspendSeller: adminProcedure.input(z.object({ sellerId: z.number().int().positive(), reviewNote: z.string().trim().max(1000).optional() })).mutation(async ({ ctx, input }) => { await requirePrimaryAdministrator(ctx.user); return marketplaceDb.suspendSellerProfile(ctx.user.id, input.sellerId, input.reviewNote); }),
+    removeSeller: adminProcedure.input(z.object({ sellerId: z.number().int().positive(), confirmation: z.literal("REMOVE SELLER") })).mutation(async ({ ctx, input }) => { await requirePrimaryAdministrator(ctx.user); return marketplaceDb.removeSellerProfileForPrimaryAdmin(input.sellerId); }),
+    setSellerBadge: adminProcedure.input(z.object({ sellerId: z.number().int().positive(), badge: z.enum(["trusted", "pioneer"]), enabled: z.boolean() })).mutation(async ({ ctx, input }) => { await requirePrimaryAdministrator(ctx.user); return marketplaceDb.setSellerBadge(ctx.user.id, input.sellerId, input.badge, input.enabled); }),
     products: adminProcedure.query(() => marketplaceDb.listAdminProducts()),
     reviewProduct: adminProcedure.input(z.object({ productId: z.number().int().positive(), status: z.enum(["published", "rejected"]), reviewNote: z.string().trim().max(1000).optional() })).mutation(({ input }) => marketplaceDb.reviewMarketplaceProduct(input.productId, input.status, input.reviewNote)),
     createAnnouncement: adminProcedure.input(z.object({ title: z.string().trim().min(4).max(180), body: z.string().trim().min(12).max(5000), pinned: z.boolean().default(false), status: z.enum(["draft", "published"]) })).mutation(({ ctx, input }) => marketplaceDb.createAnnouncement(ctx.user.id, input)),
+    sections: adminProcedure.query(() => marketplaceDb.listAdminSiteSections()),
+    createSection: adminProcedure.input(siteSectionInputSchema).mutation(({ ctx, input }) => marketplaceDb.createSiteSection(ctx.user.id, input)),
+    updateSection: adminProcedure.input(z.object({ sectionId: z.number().int().positive(), section: siteSectionInputSchema })).mutation(({ input }) => marketplaceDb.updateSiteSection(input.sectionId, input.section)),
   }),
 });
 

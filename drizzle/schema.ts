@@ -1,4 +1,4 @@
-import { decimal, index, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { decimal, index, int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -30,10 +30,11 @@ export const sellerProfiles = mysqlTable("seller_profiles", {
   userId: int("userId").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
   shopName: varchar("shopName", { length: 140 }).notNull(),
   shopSlug: varchar("shopSlug", { length: 160 }).notNull().unique(),
+  sellerCode: varchar("sellerCode", { length: 32 }).unique(),
   bio: text("bio"),
   contactEmail: varchar("contactEmail", { length: 320 }),
   logoUrl: text("logoUrl"),
-  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected", "suspended"]).default("pending").notNull(),
   reviewNote: text("reviewNote"),
   reviewedAt: timestamp("reviewedAt"),
   reviewedByUserId: int("reviewedByUserId").references(() => users.id, { onDelete: "set null" }),
@@ -48,7 +49,7 @@ export const marketplaceProducts = mysqlTable("marketplace_products", {
   description: text("description").notNull(),
   category: mysqlEnum("category", ["figures", "clothing", "manga", "accessories", "posters", "digital", "home", "cosplay"]).notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  currency: varchar("currency", { length: 3 }).default("NGN").notNull(),
+  currency: mysqlEnum("currency", ["NGN", "USD", "GBP", "EUR"]).default("NGN").notNull(),
   status: mysqlEnum("status", ["draft", "submitted", "published", "rejected"]).default("draft").notNull(),
   reviewNote: text("reviewNote"),
   publishedAt: timestamp("publishedAt"),
@@ -89,8 +90,55 @@ export const announcements = mysqlTable("announcements", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => [index("announcements_status_idx").on(table.status), index("announcements_pinned_idx").on(table.pinned)]);
 
+export const siteSections = mysqlTable("site_sections", {
+  id: int("id").autoincrement().primaryKey(),
+  authorUserId: int("authorUserId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  sectionType: mysqlEnum("sectionType", ["banner", "community", "collection", "notice"]).notNull(),
+  title: varchar("title", { length: 180 }).notNull(),
+  body: text("body").notNull(),
+  actionLabel: varchar("actionLabel", { length: 80 }),
+  actionUrl: varchar("actionUrl", { length: 500 }),
+  imageUrl: text("imageUrl"),
+  displayOrder: int("displayOrder").default(0).notNull(),
+  status: mysqlEnum("status", ["draft", "published"]).default("draft").notNull(),
+  publishedAt: timestamp("publishedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => [index("site_sections_status_idx").on(table.status), index("site_sections_order_idx").on(table.displayOrder)]);
+
+export const marketplaceGovernance = mysqlTable("marketplace_governance", {
+  id: int("id").autoincrement().primaryKey(),
+  primaryAdminUserId: int("primaryAdminUserId").notNull().unique().references(() => users.id, { onDelete: "restrict" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const adminRequests = mysqlTable("admin_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
+  reason: text("reason"),
+  status: mysqlEnum("status", ["pending", "approved", "rejected", "revoked"]).default("pending").notNull(),
+  reviewedAt: timestamp("reviewedAt"),
+  reviewedByUserId: int("reviewedByUserId").references(() => users.id, { onDelete: "set null" }),
+  reviewNote: text("reviewNote"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => [index("admin_requests_status_idx").on(table.status)]);
+
+export const sellerBadges = mysqlTable("seller_badges", {
+  id: int("id").autoincrement().primaryKey(),
+  sellerId: int("sellerId").notNull().references(() => sellerProfiles.id, { onDelete: "cascade" }),
+  badge: mysqlEnum("badge", ["trusted", "pioneer"]).notNull(),
+  assignedByUserId: int("assignedByUserId").notNull().references(() => users.id, { onDelete: "restrict" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => [uniqueIndex("seller_badges_seller_badge_unique").on(table.sellerId, table.badge), index("seller_badges_seller_idx").on(table.sellerId)]);
+
 export type SellerProfile = typeof sellerProfiles.$inferSelect;
 export type MarketplaceProduct = typeof marketplaceProducts.$inferSelect;
 export type ProductImage = typeof productImages.$inferSelect;
 export type BuyerContact = typeof buyerContacts.$inferSelect;
 export type Announcement = typeof announcements.$inferSelect;
+export type SiteSection = typeof siteSections.$inferSelect;
+export type MarketplaceGovernance = typeof marketplaceGovernance.$inferSelect;
+export type AdminRequest = typeof adminRequests.$inferSelect;
+export type SellerBadge = typeof sellerBadges.$inferSelect;

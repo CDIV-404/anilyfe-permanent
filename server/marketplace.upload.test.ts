@@ -5,7 +5,7 @@ const assertSellerOwnsProduct = vi.hoisted(() => vi.fn());
 const addProductImageForSeller = vi.hoisted(() => vi.fn());
 const storagePut = vi.hoisted(() => vi.fn());
 
-vi.mock("./marketplaceDb", () => ({ assertSellerOwnsProduct, addProductImageForSeller }));
+vi.mock("./marketplaceDb", () => ({ SUPPORTED_CURRENCIES: ["NGN", "USD", "GBP", "EUR"], assertSellerOwnsProduct, addProductImageForSeller }));
 vi.mock("./storage", () => ({ storagePut }));
 
 import { appRouter } from "./routers";

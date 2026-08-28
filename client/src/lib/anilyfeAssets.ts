@@ -1,5 +1,6 @@
 export const anilyfeAssets = {
   hero: "/manus-storage/anilyfe-marketplace-hero-light_1cdb7313.png",
+  wallpaper: "/manus-storage/anilyfe-blue-motion-wallpaper_344886b9.png",
   products: {
     figure: "/manus-storage/anilyfe-product-figure-light_268c2bc3.png",
     hoodie: "/manus-storage/anilyfe-product-hoodie-light_3d68ff7a.png",

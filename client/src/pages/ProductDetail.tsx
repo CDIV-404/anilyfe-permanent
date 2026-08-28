@@ -21,7 +21,7 @@ export default function ProductDetail() {
   const [message, setMessage] = useState("");
   const preview = previewProductById(productId);
   const product = isPreview && preview ? { id: preview.id, name: preview.name, description: preview.description, category: preview.category, price: formatMarketplacePrice(preview.price), image: preview.image, sellerName: "Anilyfe preview collection", preview: true } : liveProduct.data ? { id: String(liveProduct.data.id), name: liveProduct.data.name, description: liveProduct.data.description, category: liveProduct.data.category, price: formatMarketplacePrice(liveProduct.data.price, liveProduct.data.currency), image: liveProduct.data.imageUrl || anilyfeAssets.products.figure, sellerName: liveProduct.data.sellerName, preview: false } : null;
-  const sendMessage = async () => { if (!product || product.preview) return; if (!user) { startLogin(); return; } await contactSeller.mutateAsync({ productId: Number(product.id), message: message.trim() }); setMessage(""); };
+  const sendMessage = async () => { if (!product || product.preview) return; if (!user) { startLogin(`/product/${product.id}`); return; } await contactSeller.mutateAsync({ productId: Number(product.id), message: message.trim() }); setMessage(""); };
 
   const buyerItem = product ? { id: product.id, name: product.name, category: product.category, price: product.price, image: product.image, sellerName: product.sellerName, preview: product.preview, href: `/product/${product.id}` } : null;
   const isSaved = Boolean(buyerItem && savedItems.some((item) => item.id === buyerItem.id));

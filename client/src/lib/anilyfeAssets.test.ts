@@ -14,6 +14,7 @@ describe("Anilyfe production asset manifest", () => {
   it("keeps runtime images on durable project storage", () => {
     expect(anilyfeAssets.hero).toMatch(/^\/manus-storage\//);
     expect(anilyfeAssets.hero).toContain("anilyfe-marketplace-hero-light_");
+    expect(anilyfeAssets.wallpaper).toMatch(/^\/manus-storage\/anilyfe-blue-motion-wallpaper_[a-f0-9]+\.png$/);
     expect(Object.values(anilyfeAssets.products)).toHaveLength(5);
     expect(Object.values(anilyfeAssets.products).every((url) => url.startsWith("/manus-storage/"))).toBe(true);
     expect(Object.values(anilyfeAssets.collectionArt)).toHaveLength(4);

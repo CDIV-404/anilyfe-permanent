@@ -1,12 +1,14 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { ArrowRight, BadgeCheck, Box, ChevronRight, CircleHelp, Clock3, Gem, Heart, MessageCircle, PackageOpen, ShieldCheck, Sparkles, Store, Truck, UsersRound } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { anilyfeAssets, type AnilyfeModelKey } from "@/lib/anilyfeAssets";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { startLogin } from "@/const";
+import { POST_LOGIN_ROUTE_KEY, startLogin } from "@/const";
+import { consumePostLoginRoute } from "@/lib/accountTransitions";
 import MarketplaceHeader from "@/components/MarketplaceHeader";
 import { useMarketplace } from "@/contexts/MarketplaceContext";
+import EntryGateway from "@/components/EntryGateway";
 
 const AnilyfeModelViewer = lazy(() => import("@/components/AnilyfeModelViewer"));
 
@@ -32,10 +34,17 @@ type ProductTile = { id: string | number; name: string; category: string; price:
 
 function formatPrice(value: string, currency = "NGN") { return new Intl.NumberFormat("en-NG", { style: "currency", currency, maximumFractionDigits: 0 }).format(Number(value)); }
 
+function ConfigurableMarketplaceSection({ section }: { section: { id: number; sectionType: "banner" | "community" | "collection" | "notice"; title: string; body: string; actionLabel: string | null; actionUrl: string | null; imageUrl: string | null } }) {
+  const external = section.actionUrl?.startsWith("https://");
+  return <section className={`marketplace-config-section marketplace-config-section-${section.sectionType}`}><div className="relative z-10 max-w-2xl"><p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#1658ad]">Community signal</p><h2 className="mt-2 text-xl font-black tracking-tight text-slate-900 sm:text-2xl">{section.title}</h2><p className="mt-2 text-sm leading-6 text-slate-600">{section.body}</p>{section.actionUrl && section.actionLabel ? <a href={section.actionUrl} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined} className="marketplace-primary-button mt-5">{section.actionLabel}<ArrowRight className="h-4 w-4" /></a> : null}</div>{section.imageUrl ? <img src={section.imageUrl} alt="" className="absolute inset-y-0 right-0 h-full w-full object-cover opacity-35 mix-blend-multiply sm:w-[48%]" /> : <span aria-hidden="true" className="marketplace-config-sigil" />}</section>;
+}
+
 export default function Home() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  const [, navigate] = useLocation();
   const { data: publishedProducts } = trpc.marketplace.products.useQuery({});
   const { data: announcements } = trpc.marketplace.announcements.useQuery();
+  const { data: siteSections } = trpc.marketplace.sections.useQuery();
   const contactSeller = trpc.buyer.contactSeller.useMutation();
   const { savedItems, toggleSavedItem } = useMarketplace();
   const [selectedKey, setSelectedKey] = useState<AnilyfeModelKey>("figure");
@@ -46,10 +55,14 @@ export default function Home() {
   const products: ProductTile[] = publishedProducts?.length ? publishedProducts.map((product) => ({ id: product.id, name: product.name, category: product.category, price: formatPrice(product.price, product.currency), image: product.imageUrl || anilyfeAssets.products.figure, sellerName: product.sellerName })) : previewProducts;
 
   useEffect(() => { const query = window.matchMedia("(prefers-reduced-motion: reduce)"); const update = () => setReducedMotion(query.matches); update(); query.addEventListener("change", update); return () => query.removeEventListener("change", update); }, []);
+  useEffect(() => { if (!user) return; const destination = consumePostLoginRoute(sessionStorage, POST_LOGIN_ROUTE_KEY); if (destination && destination !== window.location.pathname) navigate(destination); }, [navigate, user]);
   const scrollTo3D = () => document.querySelector("#three-d-preview")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
   const submitInquiry = async () => { if (!inquiry || !message.trim()) return; if (!user) { startLogin(); return; } await contactSeller.mutateAsync({ productId: Number(inquiry.id), message: message.trim() }); setMessage(""); setInquiry(null); };
 
-  return <div className="min-h-screen bg-[#f7f9fc] text-slate-800"><MarketplaceHeader />
+  if (loading) return <div className="grid min-h-screen place-items-center bg-[#f7f9fc] text-sm font-semibold text-[#1658ad]">Loading Anilyfe…</div>;
+  if (!user) return <EntryGateway />;
+
+  return <div className="min-h-screen marketplace-stage text-slate-800"><img src={anilyfeAssets.wallpaper} alt="" className="marketplace-wallpaper" /><MarketplaceHeader />
     <main className="mx-auto max-w-[1260px] px-4 py-5 sm:px-6">
       <div className="grid gap-5 xl:grid-cols-[200px_minmax(0,1fr)_220px]">
         <aside id="categories" className="order-2 space-y-4 xl:order-1"><section className="marketplace-panel overflow-hidden"><div className="border-b border-slate-100 px-4 py-3 text-sm font-bold text-slate-800">Categories</div><div className="p-2">{categories.map((category) => { const Icon = category.icon; return <button key={category.key} onClick={() => { setSelectedKey(category.key); scrollTo3D(); }} className="marketplace-category-link"><Icon className="h-4 w-4 text-slate-500" />{category.sublabel}</button>; })}<a className="marketplace-category-link" href="#products"><span className="grid h-4 w-4 place-items-center text-base">+</span>View All Categories</a></div></section>
@@ -58,6 +71,7 @@ export default function Home() {
         </aside>
         <div className="order-1 min-w-0 space-y-5 xl:order-2">
           <section className="marketplace-hero"><img src={anilyfeAssets.hero} alt="Original anime-inspired Anilyfe marketplace visual" className="absolute inset-0 h-full w-full object-cover object-[72%_center]" /><div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,16,43,.98)_0%,rgba(3,16,43,.86)_38%,rgba(3,16,43,.18)_75%,rgba(3,16,43,.22)_100%)]" /><div className="relative z-10 flex min-h-[315px] max-w-[390px] flex-col justify-center px-7 py-8 sm:px-10"><p className="mb-2 text-[11px] font-bold uppercase tracking-[.22em] text-[#f4c66b]">Welcome to</p><h1 className="anilyfe-hero-mark">AN<span className="text-[#d6a13e]">I</span>LYFE</h1><p className="mt-3 text-sm leading-6 text-blue-50/90">The marketplace and community for anime lovers. Discover, connect, and support the culture.</p><div className="mt-6 flex flex-wrap gap-3"><a href="#products" className="marketplace-primary-button">Shop Now <ArrowRight className="h-4 w-4" /></a><a href="#community" className="marketplace-secondary-button">Join Community</a></div></div></section>
+          {siteSections?.map((section) => <ConfigurableMarketplaceSection key={section.id} section={section} />)}
           {announcements?.length ? <section className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-slate-700"><b className="mr-2 text-[#1658ad]">Announcement:</b>{announcements[0]?.title}</section> : null}
           <section><div className="mb-3 flex items-center justify-between"><h2 className="text-base font-bold text-slate-800">Shop by Category</h2><a href="#categories" className="text-xs font-semibold text-[#1658ad]">View all</a></div><div className="grid grid-cols-4 gap-3 sm:grid-cols-7">{categories.map((category) => <button key={category.key} onClick={() => { setSelectedKey(category.key); scrollTo3D(); }} className="marketplace-category-orb"><span className="relative grid aspect-square w-full place-items-center overflow-hidden rounded-full bg-slate-100"><img src={category.image} alt="" className="h-full w-full object-cover" /><span className="absolute inset-0 bg-blue-950/20" /></span><span>{category.title}</span></button>)}</div></section>
           <section id="products"><div className="mb-3 flex items-center justify-between"><div><h2 className="text-base font-bold text-slate-800">Featured Products</h2><p className="mt-0.5 text-[11px] text-slate-500">{publishedProducts?.length ? "Approved seller listings" : "Preview of the Anilyfe collection layout"}</p></div><Link href="/marketplace" className="text-xs font-semibold text-[#1658ad]">View all</Link></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">{products.map((product) => { const item = { id: String(product.id), name: product.name, category: product.category, price: product.price, image: product.image, sellerName: product.sellerName || "Anilyfe preview", preview: typeof product.id === "string", href: `/product/${product.id}` }; const saved = savedItems.some((savedItem) => savedItem.id === item.id); return <article key={`${product.name}-${product.id}`} className="marketplace-product-card"><div className="relative aspect-square overflow-hidden bg-[#e9eef8]"><Link href={item.href}><img src={product.image} alt={product.name} className="h-full w-full object-cover transition duration-300 hover:scale-105" /></Link><span className="absolute bottom-2 left-2 rounded bg-[#1658ad] px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-white">{product.category}</span><button onClick={() => toggleSavedItem(item)} className={`absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-white/90 shadow-sm transition ${saved ? "text-rose-500" : "text-slate-500 hover:text-rose-500"}`} aria-label={`${saved ? "Remove" : "Save"} ${product.name}`}><Heart className={`h-4 w-4 ${saved ? "fill-current" : ""}`} /></button></div><div className="p-3"><Link href={item.href} className="block"><h3 className="line-clamp-2 min-h-10 text-sm font-bold leading-5 text-slate-800">{product.name}</h3></Link>{product.sellerName ? <p className="mt-1 truncate text-[11px] text-slate-500">Sold by {product.sellerName}</p> : <p className="mt-1 text-[11px] text-slate-500">Anilyfe preview collection</p>}<div className="mt-3 flex items-center justify-between gap-2"><b className="text-sm text-slate-900">{product.price}</b>{typeof product.id === "number" ? <button onClick={() => setInquiry({ id: product.id, name: product.name })} className="rounded-md border border-blue-200 px-2 py-1 text-[10px] font-bold text-[#1658ad] hover:bg-blue-50">Contact seller</button> : <Link href={item.href} className="rounded-md border border-blue-200 px-2 py-1 text-[10px] font-bold text-[#1658ad] hover:bg-blue-50">View details</Link>}</div></div></article>; })}</div></section>

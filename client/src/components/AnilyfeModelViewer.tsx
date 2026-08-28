@@ -5,7 +5,32 @@ import { GLTFLoader, type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js"
 
 type AnilyfeModelViewerProps = { label: string; modelUrl: string; reducedMotion: boolean; };
 
-function disposeObject(root: THREE.Object3D) { root.traverse((node: THREE.Object3D) => { const mesh = node as THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>; if (!mesh.isMesh) return; mesh.geometry?.dispose(); const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]; materials.filter((material): material is THREE.Material => Boolean(material) && typeof material.dispose === "function").forEach((material) => material.dispose()); }); }
+export function viewerMotionEnabled(reducedMotion: boolean) { return !reducedMotion; }
+
+function disposeObject(root: THREE.Object3D) {
+  root.traverse((node: THREE.Object3D) => {
+    const mesh = node as THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>;
+    if (!mesh.isMesh) return;
+    mesh.geometry?.dispose();
+    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    materials.filter((material): material is THREE.Material => Boolean(material) && typeof material.dispose === "function").forEach((material) => material.dispose());
+  });
+}
+
+function createHolographicParticles() {
+  const count = 110;
+  const positions = new Float32Array(count * 3);
+  for (let index = 0; index < count; index += 1) {
+    const angle = index * 2.399963229728653;
+    const radius = .65 + (index % 17) * .11;
+    positions[index * 3] = Math.cos(angle) * radius;
+    positions[index * 3 + 1] = .13 + ((index * 13) % 31) * .064;
+    positions[index * 3 + 2] = Math.sin(angle) * radius;
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  return new THREE.Points(geometry, new THREE.PointsMaterial({ color: 0xe9f9ff, size: .028, transparent: true, opacity: .78, depthWrite: false }));
+}
 
 export default function AnilyfeModelViewer({ label, modelUrl, reducedMotion }: AnilyfeModelViewerProps) {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -14,23 +39,110 @@ export default function AnilyfeModelViewer({ label, modelUrl, reducedMotion }: A
     const mount = mountRef.current;
     if (!mount) return;
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100); camera.position.set(3.5, 2.65, 5.8);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.22; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.domElement.setAttribute("aria-label", `${label} interactive 3D preview`); mount.appendChild(renderer.domElement);
-    const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true; controls.dampingFactor = 0.075; controls.enablePan = false; controls.minDistance = 3.2; controls.maxDistance = 8; controls.autoRotate = !reducedMotion; controls.autoRotateSpeed = 0.7; controls.target.set(0, 0.9, 0);
-    scene.add(new THREE.HemisphereLight(0xb8efff, 0x0b102a, 2.3));
-    const key = new THREE.DirectionalLight(0xe8fbff, 3.8); key.position.set(4, 5, 5); key.castShadow = true; scene.add(key);
-    const cyanRim = new THREE.PointLight(0x22d3ee, 4.6, 11); cyanRim.position.set(-2.9, 2.2, 2.5); scene.add(cyanRim);
-    const violetRim = new THREE.PointLight(0xc084fc, 4.2, 10); violetRim.position.set(2.5, 1.8, -2.8); scene.add(violetRim);
-    const base = new THREE.Mesh(new THREE.CircleGeometry(2.25, 64), new THREE.MeshBasicMaterial({ color: 0x0e7490, transparent: true, opacity: 0.21 })); base.rotation.x = -Math.PI / 2; scene.add(base);
-    const ring = new THREE.Mesh(new THREE.RingGeometry(1.82, 1.88, 64), new THREE.MeshBasicMaterial({ color: 0x67e8f9, transparent: true, opacity: 0.45, side: THREE.DoubleSide })); ring.rotation.x = -Math.PI / 2; ring.position.y = .006; scene.add(ring);
-    let frame = 0; let disposed = false; let activeModel: THREE.Group | null = null; let modelBaseY = 0; let previousFrameSeconds = performance.now() / 1000; let elapsedSeconds = 0;
+    const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
+    camera.position.set(3.5, 2.65, 5.8);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.3;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.domElement.setAttribute("aria-label", `${label} interactive 3D preview`);
+    mount.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.075;
+    controls.enablePan = false;
+    controls.minDistance = 3.2;
+    controls.maxDistance = 8;
+    controls.autoRotate = viewerMotionEnabled(reducedMotion);
+    controls.autoRotateSpeed = 0.62;
+    controls.target.set(0, 0.9, 0);
+
+    scene.add(new THREE.HemisphereLight(0xd9f6ff, 0x072454, 2.65));
+    const key = new THREE.DirectionalLight(0xffffff, 4.25);
+    key.position.set(4, 5.5, 5);
+    key.castShadow = true;
+    scene.add(key);
+    const cyanRim = new THREE.PointLight(0x54c8ff, 5.6, 11);
+    cyanRim.position.set(-2.9, 2.3, 2.5);
+    scene.add(cyanRim);
+    const blueRim = new THREE.PointLight(0x276bdf, 4.7, 11);
+    blueRim.position.set(2.8, 1.8, -2.9);
+    scene.add(blueRim);
+    const goldSpark = new THREE.PointLight(0xffdf89, 2.2, 7);
+    goldSpark.position.set(0, 3.4, 1.2);
+    scene.add(goldSpark);
+
+    const hologram = new THREE.Group();
+    const base = new THREE.Mesh(new THREE.CircleGeometry(2.32, 72), new THREE.MeshBasicMaterial({ color: 0x168dce, transparent: true, opacity: .22, depthWrite: false }));
+    base.rotation.x = -Math.PI / 2;
+    hologram.add(base);
+    const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xcaefff, transparent: true, opacity: .7, side: THREE.DoubleSide, depthWrite: false });
+    const outerRing = new THREE.Mesh(new THREE.RingGeometry(1.89, 1.93, 72), ringMaterial);
+    outerRing.rotation.x = -Math.PI / 2;
+    outerRing.position.y = .008;
+    hologram.add(outerRing);
+    const innerRing = new THREE.Mesh(new THREE.RingGeometry(.98, 1.01, 72), new THREE.MeshBasicMaterial({ color: 0x78d6ff, transparent: true, opacity: .48, side: THREE.DoubleSide, depthWrite: false }));
+    innerRing.rotation.x = -Math.PI / 2;
+    innerRing.position.y = .012;
+    hologram.add(innerRing);
+    const arcA = new THREE.Mesh(new THREE.TorusGeometry(1.7, .018, 10, 72, Math.PI * 1.22), new THREE.MeshBasicMaterial({ color: 0xeffcff, transparent: true, opacity: .66 }));
+    arcA.rotation.set(Math.PI / 2.2, 0, .46);
+    arcA.position.y = 1.1;
+    hologram.add(arcA);
+    const arcB = arcA.clone();
+    arcB.rotation.set(Math.PI / 1.82, Math.PI / 1.5, -.58);
+    arcB.scale.setScalar(.78);
+    hologram.add(arcB);
+    const particles = createHolographicParticles();
+    hologram.add(particles);
+    scene.add(hologram);
+
+    let frame = 0;
+    let disposed = false;
+    let activeModel: THREE.Group | null = null;
+    let modelBaseY = 0;
+    let previousFrameSeconds = performance.now() / 1000;
+    let elapsedSeconds = 0;
     const resize = () => { const width = mount.clientWidth || 420; const height = mount.clientHeight || 360; camera.aspect = width / height; camera.updateProjectionMatrix(); renderer.setSize(width, height, false); };
-    const observer = new ResizeObserver(resize); observer.observe(mount); resize();
-    const loader = new GLTFLoader(); setStatus("Loading GLB model");
-    loader.load(modelUrl, (gltf: GLTF) => { if (disposed) { disposeObject(gltf.scene); return; } activeModel = gltf.scene; const bounds = new THREE.Box3().setFromObject(activeModel); const center = bounds.getCenter(new THREE.Vector3()); const size = bounds.getSize(new THREE.Vector3()); activeModel.position.sub(center); activeModel.position.y += size.y * .46; activeModel.scale.setScalar(2.22 / Math.max(size.x, size.y, size.z, 1)); modelBaseY = activeModel.position.y; activeModel.traverse((node: THREE.Object3D) => { const mesh = node as THREE.Mesh; if (mesh.isMesh) { mesh.castShadow = true; mesh.receiveShadow = true; } }); scene.add(activeModel); setStatus("GLB online. Drag to rotate and scroll to zoom."); }, undefined, () => setStatus("The 3D model could not be loaded. Please try again."));
-    const render = (frameMilliseconds: number) => { const frameSeconds = frameMilliseconds / 1000; const deltaSeconds = Math.min(frameSeconds - previousFrameSeconds, .05); previousFrameSeconds = frameSeconds; elapsedSeconds += Math.max(deltaSeconds, 0); controls.update(deltaSeconds); if (activeModel && !reducedMotion) activeModel.position.y = modelBaseY + Math.sin(elapsedSeconds * 1.1) * .035; renderer.render(scene, camera); frame = requestAnimationFrame(render); };
+    const observer = new ResizeObserver(resize);
+    observer.observe(mount);
+    resize();
+    const loader = new GLTFLoader();
+    setStatus("Loading GLB model");
+    loader.load(modelUrl, (gltf: GLTF) => {
+      if (disposed) { disposeObject(gltf.scene); return; }
+      activeModel = gltf.scene;
+      const bounds = new THREE.Box3().setFromObject(activeModel);
+      const center = bounds.getCenter(new THREE.Vector3());
+      const size = bounds.getSize(new THREE.Vector3());
+      activeModel.position.sub(center);
+      activeModel.position.y += size.y * .46;
+      activeModel.scale.setScalar(2.22 / Math.max(size.x, size.y, size.z, 1));
+      modelBaseY = activeModel.position.y;
+      activeModel.traverse((node: THREE.Object3D) => { const mesh = node as THREE.Mesh; if (mesh.isMesh) { mesh.castShadow = true; mesh.receiveShadow = true; } });
+      scene.add(activeModel);
+      setStatus("GLB online. Drag to rotate and scroll to zoom.");
+    }, undefined, () => setStatus("The 3D model could not be loaded. Please try again."));
+    const render = (frameMilliseconds: number) => {
+      const frameSeconds = frameMilliseconds / 1000;
+      const deltaSeconds = Math.min(frameSeconds - previousFrameSeconds, .05);
+      previousFrameSeconds = frameSeconds;
+      elapsedSeconds += Math.max(deltaSeconds, 0);
+      controls.update(deltaSeconds);
+      if (viewerMotionEnabled(reducedMotion)) {
+        hologram.rotation.y += deltaSeconds * .12;
+        particles.rotation.y -= deltaSeconds * .08;
+        if (activeModel) activeModel.position.y = modelBaseY + Math.sin(elapsedSeconds * 1.1) * .035;
+      }
+      renderer.render(scene, camera);
+      frame = requestAnimationFrame(render);
+    };
     frame = requestAnimationFrame(render);
     return () => { disposed = true; cancelAnimationFrame(frame); observer.disconnect(); controls.dispose(); disposeObject(scene); renderer.dispose(); renderer.domElement.remove(); };
   }, [label, modelUrl, reducedMotion]);
-  return <div className="model-viewer-shell"><div className="model-viewer-stage" ref={mountRef} /><p className="model-viewer-status" aria-live="polite">{status}</p><p className="model-viewer-hint">Interactive 3D product preview</p></div>;
+  return <div className="model-viewer-shell"><div className="model-viewer-stage" ref={mountRef} /><p className="model-viewer-status" aria-live="polite">{status}</p><p className="model-viewer-hint">Holographic product vault</p></div>;
 }

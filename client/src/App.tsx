@@ -10,6 +10,7 @@ import UserCreateAccount from "@/pages/UserCreateAccount";
 import UserLogin from "@/pages/UserLogin";
 import AdminCreateAccount from "@/pages/AdminCreateAccount";
 import AdminLogin from "@/pages/AdminLogin";
+import AdminSellerManagement from "@/pages/AdminSellerManagement";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -24,6 +25,7 @@ function Router() {
       <Route path={"/account/create"} component={UserCreateAccount} />
       <Route path={"/account/login"} component={UserLogin} />
       <Route path={"/seller"} component={SellerDashboard} />
+      <Route path={"/admin/sellers"} component={AdminSellerManagement} />
       <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/admin/create"} component={AdminCreateAccount} />
       <Route path={"/admin/login"} component={AdminLogin} />
